@@ -7,7 +7,9 @@ import (
 	"os"
 
 	configkeys "github.com/fredbi/go-api-skeleton/api/app/config-keys"
+	"github.com/fredbi/go-api-skeleton/api/app/handlers"
 	"github.com/fredbi/go-api-skeleton/api/pkg/injected"
+	"github.com/fredbi/go-api-skeleton/api/pkg/migrations"
 	"github.com/fredbi/go-api-skeleton/api/pkg/repos"
 	"github.com/fredbi/go-api-skeleton/api/pkg/repos/pgrepo"
 	"github.com/fredbi/go-trace/log"
@@ -88,6 +90,12 @@ func (r *runtime) App() chi.Router {
 func (s *Server) Init() error {
 	lg := s.logger.Bg()
 
+	if err := s.initDB(); err != nil {
+		lg.Error("could not initialize DB connection pool", zap.Error(err))
+
+		return err
+	}
+
 	if err := s.migrateDB(); err != nil {
 		// NOTE: this should only run short-lived migration jobs.
 		//
@@ -98,25 +106,15 @@ func (s *Server) Init() error {
 		return err
 	}
 
-	if err := s.initDB(); err != nil {
-		lg.Error("could not initialize DB connection pool", zap.Error(err))
-
-		return err
-	}
-
-	if err := s.initRouter(); err != nil {
-		lg.Error("could not initialize API router", zap.Error(err))
-
-		return err
-	}
-
 	// other initializations...
 
 	return nil
 }
 
 func (s *Server) migrateDB() error {
-	return nil // TODO
+	// TODO(fredbi): testability - this should be more convoluted to support test environments
+	// and possible env-specific migrations (e.g. to feed parameter tables etc).
+	return migrations.Migrate(s.runtime)
 }
 
 func (s *Server) initDB() error {
@@ -134,17 +132,6 @@ func (s *Server) initDB() error {
 	return nil
 }
 
-func (s *Server) initRouter() error {
-	// apply middleware etc here
-	s.router.Use(log.Requests(s.logger))
-
-	// register handlers
-	// TODO
-
-	// handlers.Register(s.runtime)
-	return nil
-}
-
 // Start the API server.
 //
 // This version starts an http server.
@@ -152,11 +139,15 @@ func (s *Server) initRouter() error {
 // It can be easily extended to start multiple listeners
 // and suppot multiple protocols (e.g. grpc, ...).
 //
-// TODO: https configuration
+// TODO(fredbi): security - https configuration
 func (s *Server) Start() error {
-	s.router.Route("/", func(r chi.Router) {
-		// TODO
-	})
+	lg := s.logger.Bg()
+
+	if err := s.startRouter(); err != nil {
+		lg.Error("could not initialize API router", zap.Error(err))
+
+		return err
+	}
 
 	scheme := s.cfg.GetString(configkeys.Scheme)
 
@@ -173,8 +164,18 @@ func (s *Server) Start() error {
 		zap.String("addr", hostPort),
 	)
 
-	// TODO: craft more elaborate server, with various timeouts set properly
+	// TODO(fredbi): security - craft more elaborate server, with various timeouts set properly
 	return http.ListenAndServe(hostPort, s.router) //#nosec
+}
+
+func (s *Server) startRouter() error {
+	// apply middleware etc here
+	s.router.Use(log.Requests(s.logger))
+
+	// register handlers
+	handlers.Register(s.runtime)
+
+	return nil
 }
 
 // Stop the API server.

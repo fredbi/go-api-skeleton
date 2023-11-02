@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 
@@ -88,6 +87,7 @@ func (h Handler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 
 	item.ID = id
 	lg.Debug("update item", zap.Any("item", item))
+	// TODO(fredbi): check for required fields
 
 	if err := h.rt.Repos().Sample().Update(ctx, item); err != nil {
 		h.checkErr(w, ErrUpdateItem, err)
@@ -105,6 +105,7 @@ func (h Handler) CreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	item.ID = ""
+	// TODO(fredbi): check for required fields
 
 	lg.Debug("create item", zap.Any("item", item))
 
@@ -206,22 +207,8 @@ func (h Handler) parseItemFromJSON(w http.ResponseWriter, r *http.Request, base 
 		return item, err
 	}
 
-	// TODO: security - use ReadLimiter like in net/http
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		h.checkErr(w, base, err)
-
-		return item, err
-	}
-
-	if len(body) == 0 {
-		err = errors.New("empty body")
-		h.checkErr(w, base, err)
-
-		return item, err
-	}
-
-	if err = json.Unmarshal(body, &item); err != nil {
+	// TODO(fredbi): performance - don't use encoding/json in real conditions (too slow)
+	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
 		h.checkErr(w, base, err)
 
 		return item, err
