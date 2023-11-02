@@ -3,7 +3,7 @@ module github.com/fredbi/go-api-skeleton
 go 1.21.3
 
 require (
-	github.com/Masterminds/squirrel v1.5.3
+	github.com/Masterminds/squirrel v1.5.4
 	github.com/a8m/envsubst v1.4.2
 	github.com/fredbi/go-cli v0.2.1
 	github.com/fredbi/go-patterns v0.1.0
