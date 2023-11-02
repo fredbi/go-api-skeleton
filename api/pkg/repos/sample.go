@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/fredbi/go-patterns/iterators"
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type (
@@ -22,17 +22,17 @@ type (
 
 	// Item represents a shippable item
 	Item struct {
-		ID                string              `json:"id" db:"id"`                                // NOT NULL
-		Name              string              `json:"name" db:"name"`                            // NOT NULL
-		WarehouseLocation string              `json:"warehouseLocation" db:"warehouse_location"` // NOT NULL
-		LastUpdated       time.Time           `json:"lastUpdated" db:"last_updated"`             // NOT NULL
-		Dimensions        *pgtype.Float8Array `json:"dimensions" db:"dimensions"`                // NOT NULL
-		Weight            float64             `json:"weight" db:"weight"`                        // NOT NULL
+		ID                string    `json:"id" db:"id"`                                // NOT NULL
+		Name              string    `json:"name" db:"name"`                            // NOT NULL
+		WarehouseLocation string    `json:"warehouseLocation" db:"warehouse_location"` // NOT NULL
+		LastUpdated       time.Time `json:"lastUpdated" db:"last_updated"`             // NOT NULL
+		Weight            float64   `json:"weight" db:"weight"`                        // NOT NULL
 
-		Attributes   map[string]interface{} `json:"attributes,omitempty" db:"attributes"`      // NULL
-		DeliveryTime *time.Duration         `json:"deliveryTime,omitempty" db:"delivery_time"` // NULL
-		Description  *string                `json:"description,omitempty" db:"description"`    // NULL
-		Tags         map[string]string      `json:"tags,omitempty" db:"tags"`                  // NULL
+		Dimensions   pgtype.FlatArray[float64] `json:"dimensions" db:"dimensions"`                // NULL
+		Attributes   map[string]interface{}    `json:"attributes,omitempty" db:"attributes"`      // NULL
+		DeliveryTime *time.Duration            `json:"deliveryTime,omitempty" db:"delivery_time"` // NULL
+		Description  *string                   `json:"description,omitempty" db:"description"`    // NULL
+		Tags         map[string]string         `json:"tags,omitempty" db:"tags"`                  // NULL
 	}
 
 	// ItemOption lets the caller specify filters

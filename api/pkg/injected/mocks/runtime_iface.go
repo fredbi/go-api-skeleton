@@ -7,7 +7,7 @@ import (
 	"github.com/fredbi/go-api-skeleton/api/pkg/injected"
 	"github.com/fredbi/go-api-skeleton/api/pkg/repos"
 	"github.com/fredbi/go-trace/log"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 	"sync"

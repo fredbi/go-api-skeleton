@@ -13,7 +13,7 @@ import (
 	"github.com/fredbi/go-api-skeleton/api/pkg/repos"
 	"github.com/fredbi/go-trace/log"
 	"github.com/fredbi/go-trace/tracer"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
 
