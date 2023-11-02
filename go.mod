@@ -9,7 +9,7 @@ require (
 	github.com/fredbi/go-patterns v0.1.0
 	github.com/fredbi/go-trace v0.1.1
 	github.com/go-chi/chi v1.5.5
-	github.com/jackc/pgtype v1.12.0
+	github.com/jackc/pgtype v1.14.0
 	github.com/jackc/pgx-zap v0.0.0-20221202020421-94b1cb2f889f
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/jmoiron/sqlx v1.3.5
