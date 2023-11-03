@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -23,13 +22,15 @@ func Register(rt injected.Iface) {
 	h := New(rt)
 
 	rt.App().Route("/sample", func(r chi.Router) {
-		r.Get("/item/{id}", http.HandlerFunc(h.GetItem))
-		r.Put("/item/{id}", http.HandlerFunc(h.UpdateItem))
-		r.Post("/item", http.HandlerFunc(h.CreateItem))
-		r.Delete("/item/{id}", http.HandlerFunc(h.DeleteItem))
+		r.Get("/items", h.ListItems)
+		r.Get("/item/{id}", h.GetItem)
+		r.Put("/item/{id}", h.UpdateItem)
+		r.Post("/item", h.CreateItem)
+		r.Delete("/item/{id}", h.DeleteItem)
 	})
 }
 
+// Handler knows how to expose the sample API REST endpoints.
 type Handler struct {
 	rt     injected.Iface
 	logger log.Factory
@@ -50,8 +51,10 @@ func (h Handler) GetItem(w http.ResponseWriter, r *http.Request) {
 	ctx, span, lg := tracer.StartSpan(r.Context(), h)
 	defer span.End()
 
-	id, err := h.getResourceFromPathParam(w, r, "id", ErrGetItem)
-	if err != nil {
+	id, httpErr := h.requireResourceFromPathParam(r, "id")
+	if httpErr != nil {
+		httpErr.From(ErrGetItem).WriteJSON(w)
+
 		return
 	}
 
@@ -59,13 +62,13 @@ func (h Handler) GetItem(w http.ResponseWriter, r *http.Request) {
 
 	item, err := h.rt.Repos().Sample().Get(ctx, id)
 	if err != nil {
-		h.checkErr(w, ErrGetItem, err)
+		checkErr(w, ErrGetItem, err)
 
 		return
 	}
 
 	if err = json.NewEncoder(w).Encode(item); err != nil {
-		h.checkErr(w, ErrGetItem, err)
+		checkErr(w, ErrGetItem, err)
 
 		return
 	}
@@ -75,8 +78,10 @@ func (h Handler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	ctx, span, lg := tracer.StartSpan(r.Context(), h)
 	defer span.End()
 
-	id, err := h.getResourceFromPathParam(w, r, "id", ErrUpdateItem)
-	if err != nil {
+	id, httpErr := h.requireResourceFromPathParam(r, "id")
+	if httpErr != nil {
+		httpErr.From(ErrUpdateItem).WriteJSON(w)
+
 		return
 	}
 
@@ -90,7 +95,7 @@ func (h Handler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	// TODO(fredbi): check for required fields
 
 	if err := h.rt.Repos().Sample().Update(ctx, item); err != nil {
-		h.checkErr(w, ErrUpdateItem, err)
+		checkErr(w, ErrUpdateItem, err)
 
 		return
 	}
@@ -111,7 +116,7 @@ func (h Handler) CreateItem(w http.ResponseWriter, r *http.Request) {
 
 	id, err := h.rt.Repos().Sample().Create(ctx, item)
 	if err != nil {
-		h.checkErr(w, ErrCreateItem, err)
+		checkErr(w, ErrCreateItem, err)
 
 		return
 	}
@@ -130,86 +135,80 @@ func (h Handler) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	ctx, span, lg := tracer.StartSpan(r.Context(), h)
 	defer span.End()
 
-	id, err := h.getResourceFromPathParam(w, r, "id", ErrDeleteItem)
+	id, err := h.requireResourceFromPathParam(r, "id")
 	if err != nil {
+		err.From(ErrDeleteItem).WriteJSON(w)
 		return
 	}
 
 	lg.Debug("delete item", zap.String("id", id))
 
 	if err := h.rt.Repos().Sample().Delete(ctx, id); err != nil {
-		h.checkErr(w, ErrDeleteItem, err)
+		checkErr(w, ErrDeleteItem, err)
 
 		return
 	}
 }
 
-func (h Handler) getResourceFromPathParam(w http.ResponseWriter, r *http.Request, param string, base error) (string, error) {
+func (h Handler) ListItems(w http.ResponseWriter, r *http.Request) {
+	ctx, span, lg := tracer.StartSpan(r.Context(), h)
+	defer span.End()
+
+	lg.Debug("list all items")
+
+	// TODO(fredbi): feature - support filters, support pagination
+	iterator, err := h.rt.Repos().Sample().List(ctx)
+	if err != nil {
+		checkErr(w, ErrListItems, err)
+
+		return
+	}
+	defer func() {
+		_ = iterator.Close()
+	}()
+
+	items := make([]repos.Item, 0, 100)
+	for iterator.Next() {
+		item, errItem := iterator.Item()
+		if errItem != nil {
+			checkErr(w, ErrListItems, errItem)
+
+			return
+		}
+		items = append(items, item)
+	}
+
+	// TODO(fredbi): performance - encode chunks and push back partial responses
+	// while iterating.
+	if err = json.NewEncoder(w).Encode(items); err != nil {
+		checkErr(w, ErrGetItem, err)
+
+		return
+	}
+}
+
+func (h Handler) requireResourceFromPathParam(r *http.Request, param string) (string, *Error) {
 	id := chi.URLParam(r, param)
-	if err := h.requireID(w, id, base); err != nil {
-		return "", err
-	}
-
-	return id, nil
-}
-
-func (h Handler) requireID(w http.ResponseWriter, id string, base error) error {
 	if id != "" {
-		return nil
+		return id, nil
 	}
 
-	err := fmt.Errorf("{id} is required")
-	h.Error(w, errors.Join(base, err), http.StatusBadRequest)
-
-	return err
+	return "", RequiredErr(param)
 }
-
-func (h Handler) checkErr(w http.ResponseWriter, base, err error) {
-	if errors.Is(err, sql.ErrNoRows) {
-		h.Error(w, errors.Join(base, err), http.StatusNotFound)
-
-		return
-	}
-
-	h.Error(w, errors.Join(base, err), http.StatusInternalServerError)
-}
-
-// Error as a json response
-func (h Handler) Error(w http.ResponseWriter, err error, code int) {
-	msg := struct {
-		Message string `json:"message"`
-		Code    int    `json:"code"`
-	}{
-		Message: err.Error(),
-		Code:    code,
-	}
-
-	w.Header().Set("Content-Type", fmt.Sprintf("%s;charset=utf-8", jsonMime))
-	_ = json.NewEncoder(w).Encode(msg)
-
-	w.WriteHeader(code)
-}
-
-var (
-	ErrGetItem    = errors.New("get item failed")
-	ErrCreateItem = errors.New("create item failed")
-	ErrUpdateItem = errors.New("update item failed")
-	ErrDeleteItem = errors.New("delete item failed")
-)
 
 func (h Handler) parseItemFromJSON(w http.ResponseWriter, r *http.Request, base error) (repos.Item, error) {
 	var item repos.Item
 
 	if ct := r.Header.Get("Content-Type"); !strings.HasPrefix(ct, jsonMime) {
 		err := errors.New("Content-Type must be application/json")
-		h.checkErr(w, base, err)
+		checkErr(w, base, err)
 
 		return item, err
 	}
 
 	// TODO(fredbi): performance - don't use encoding/json in real conditions (too slow)
 	if err := json.NewDecoder(r.Body).Decode(&item); err != nil {
-		h.checkErr(w, base, err)
+		checkErr(w, base, err)
 
 		return item, err
 	}

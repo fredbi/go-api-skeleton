@@ -1,12 +1,21 @@
 package keys
 
-import "github.com/spf13/viper"
+import (
+	"time"
+
+	"github.com/spf13/viper"
+)
 
 const (
-	Scheme      = "scheme"
-	Host        = "host"
-	Port        = "port"
-	TraceConfig = "trace"
+	Scheme          = "scheme"
+	Host            = "host"
+	Port            = "port"
+	TraceConfig     = "trace"
+	MigrationConfig = "migrations"
+
+	TraceEnabled     = "enabled"
+	MigrationEnabled = "enabled"
+	MigrationTimeout = "timeout"
 )
 
 func SetDefaults(cfg *viper.Viper) {
@@ -15,6 +24,10 @@ func SetDefaults(cfg *viper.Viper) {
 	cfg.SetDefault(Port, "8080")
 
 	cfg.SetDefault(TraceConfig, map[string]interface{}{
-		"enabled": false,
+		TraceEnabled: false,
+	})
+	cfg.SetDefault(MigrationConfig, map[string]interface{}{
+		MigrationEnabled: true,
+		MigrationTimeout: 10 * time.Minute,
 	})
 }

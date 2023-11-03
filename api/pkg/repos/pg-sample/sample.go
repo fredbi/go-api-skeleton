@@ -80,50 +80,7 @@ func (r *Repo) Create(parentCtx context.Context, item repos.Item) (string, error
 	defer span.End()
 
 	// auto-TX assumed
-	query := psql.Insert("items").Columns(itemSettableColumns...).Values(
-		item.Name,
-		item.WarehouseLocation,
-		item.Dimensions,
-		item.Weight,
-		item.Attributes,
-		item.DeliveryTime,
-		item.Description,
-	).Suffix("RETURNING id")
-	q, args := query.MustSql()
-	lg.Debug("Create item statement", zap.String("sql", q), zap.Any("args", args))
-
-	var id string
-	if err := r.DB().GetContext(ctx, &id, q, args...); err != nil {
-		return "", err
-	}
-
-	return id, nil
-}
-
-func (r *Repo) Update(parentCtx context.Context, item repos.Item) error {
-	ctx, span, lg := tracer.StartSpan(parentCtx, r)
-	defer span.End()
-
-	// auto-TX assumed
-	query := psql.Update("items").
-		SetMap(map[string]interface{}{
-			"name":               item.Name,
-			"warehouse_location": item.WarehouseLocation,
-			"dimensions":         item.Dimensions,
-			"weight":             item.Weight,
-			"attributes":         item.Attributes,
-			"delivery_time":      item.DeliveryTime,
-			"description":        item.Description,
-		}).Where(sq.Eq{"id": item.ID})
-	q, args := query.MustSql()
-	lg.Debug("Update item statement", zap.String("sql", q), zap.Any("args", args))
-
-	_, err := r.DB().ExecContext(ctx, q, args...)
-
-	return err
-}
-
-func (r *Repo) Delete(parentCtx context.Context, id string) error {
+	query := psql.
 	ctx, span, lg := tracer.StartSpan(parentCtx, r)
 	defer span.End()
 

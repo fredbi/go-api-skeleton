@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -8,12 +9,13 @@ import (
 
 	configkeys "github.com/fredbi/go-api-skeleton/api/app/config-keys"
 	"github.com/fredbi/go-api-skeleton/api/app/handlers"
+	"github.com/fredbi/go-api-skeleton/api/db/migrations"
 	"github.com/fredbi/go-api-skeleton/api/pkg/injected"
-	"github.com/fredbi/go-api-skeleton/api/pkg/migrations"
 	"github.com/fredbi/go-api-skeleton/api/pkg/repos"
 	"github.com/fredbi/go-api-skeleton/api/pkg/repos/pgrepo"
 	"github.com/fredbi/go-trace/log"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -112,9 +114,18 @@ func (s *Server) Init() error {
 }
 
 func (s *Server) migrateDB() error {
-	// TODO(fredbi): testability - this should be more convoluted to support test environments
-	// and possible env-specific migrations (e.g. to feed parameter tables etc).
-	return migrations.Migrate(s.runtime)
+	migCfg := s.cfg.Sub(configkeys.MigrationConfig)
+	if migCfg == nil || !migCfg.GetBool(configkeys.MigrationEnabled) {
+		return nil
+	}
+
+	timeout := s.cfg.GetDuration(configkeys.MigrationTimeout)
+	m := migrations.New(s.runtime)
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	return m.Migrate(ctx)
 }
 
 func (s *Server) initDB() error {
@@ -170,9 +181,10 @@ func (s *Server) Start() error {
 
 func (s *Server) startRouter() error {
 	// apply middleware etc here
+	s.router.Use(middleware.Recoverer)
 	s.router.Use(log.Requests(s.logger))
 
-	// register handlers
+	// register API handlers
 	handlers.Register(s.runtime)
 
 	return nil
