@@ -14,7 +14,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/opencensus-integrations/ocsql v0.1.7
 	github.com/pressly/goose/v3 v3.15.1
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/zap v1.26.0
