@@ -7,13 +7,13 @@ require (
 	github.com/a8m/envsubst v1.4.2
 	github.com/fredbi/go-cli v0.2.2
 	github.com/fredbi/go-patterns v0.1.1
-	github.com/fredbi/go-trace v0.1.2
+	github.com/fredbi/go-trace v1.0.0
+	github.com/fredbi/gooseplus v1.1.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/jackc/pgx-zap v0.0.0-20221202020421-94b1cb2f889f
 	github.com/jackc/pgx/v5 v5.5.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/opencensus-integrations/ocsql v0.1.7
-	github.com/pressly/goose/v3 v3.15.1
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
@@ -40,6 +40,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/pressly/goose/v3 v3.15.1 // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
