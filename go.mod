@@ -8,7 +8,7 @@ require (
 	github.com/fredbi/go-cli v0.2.2
 	github.com/fredbi/go-patterns v0.1.1
 	github.com/fredbi/go-trace v1.0.0
-	github.com/fredbi/gooseplus v1.1.0
+	github.com/fredbi/gooseplus v1.1.2
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/jackc/pgx-zap v0.0.0-20221202020421-94b1cb2f889f
 	github.com/jackc/pgx/v5 v5.5.0

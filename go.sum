@@ -77,8 +77,8 @@ github.com/fredbi/go-patterns v0.1.1 h1:6Hkn60O4heA1vbSScJflBLbjM+QcQZAM/GvjM++j
 github.com/fredbi/go-patterns v0.1.1/go.mod h1:vfuj8yiLFOUDkQJDej+/50RlnOkeNVTI2z4d/wxl3Tc=
 github.com/fredbi/go-trace v1.0.0 h1:6Uhga5P7N6syhklrGZCNvatdNnJ/dJ3Z6XRQPg9Aa4Y=
 github.com/fredbi/go-trace v1.0.0/go.mod h1:tAoerpDUsMa+j8gwOMgY6VWlKjN3KTpNvigPp8KTIEs=
-github.com/fredbi/gooseplus v1.1.0 h1:ZDe/NpbZ6igdmwlFT2oFMYG9jNqdtTvKCo66tIau244=
-github.com/fredbi/gooseplus v1.1.0/go.mod h1:hHtfa3g+9o6hWT3nynJ1u3h82qX1/J5OejMYjnN31pQ=
+github.com/fredbi/gooseplus v1.1.2 h1:Jv/7TGD16qtLIKah5XQ+OBdYHae32/oscCD4SiwnrYw=
+github.com/fredbi/gooseplus v1.1.2/go.mod h1:hHtfa3g+9o6hWT3nynJ1u3h82qX1/J5OejMYjnN31pQ=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
 github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
 github.com/go-chi/chi/v5 v5.0.10 h1:rLz5avzKpjqxrYwXNfmjkrYYXOyLJd37pz53UFHC6vk=
