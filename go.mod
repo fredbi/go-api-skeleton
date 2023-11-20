@@ -1,13 +1,12 @@
 module github.com/fredbi/go-api-skeleton
 
 go 1.21.3
-
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/a8m/envsubst v1.4.2
 	github.com/fredbi/go-cli v0.2.2
 	github.com/fredbi/go-patterns v0.1.1
-	github.com/fredbi/go-trace v1.0.0
+	github.com/fredbi/go-trace v1.2.0
 	github.com/fredbi/gooseplus v1.1.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/jackc/pgx-zap v0.0.0-20221202020421-94b1cb2f889f
@@ -22,7 +21,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fredbi/gflag v0.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -55,7 +53,7 @@ require (
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	gopkg.in/DataDog/dd-trace-go.v1 v1.56.1 // indirect
+	gopkg.in/DataDog/dd-trace-go.v1 v1.57.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
