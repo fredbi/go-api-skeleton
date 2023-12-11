@@ -11,7 +11,7 @@ require (
 	github.com/fredbi/gooseplus v1.1.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/jackc/pgx-zap v0.0.0-20221202020421-94b1cb2f889f
-	github.com/jackc/pgx/v5 v5.5.0
+	github.com/jackc/pgx/v5 v5.5.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/opencensus-integrations/ocsql v0.1.7
 	github.com/spf13/cobra v1.8.0
